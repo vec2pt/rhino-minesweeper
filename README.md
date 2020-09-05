@@ -1,2 +1,2 @@
 # rhino-minesweeper
-Minesweeper game for Rhinoceros.app
+Minesweeper game for Rhino 3D.
