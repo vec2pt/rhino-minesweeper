@@ -76,7 +76,7 @@ def turn(board, grid):
                     cells_test = list(set(cells_0(i, j, board_copy, [])))
                     for x, y in cells_test:
                         rs.DeleteObject(grid[x][y][0])
-                        if board[x][y] !=0:
+                        if board[x][y] !=0 and board[x][y] !='':
                             rs.AddTextDot(str(board[x][y]), grid[x][y][1])
                         board[x][y] = ''
                     if check_board(board):
