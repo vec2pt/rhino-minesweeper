@@ -2,25 +2,24 @@ import rhinoscriptsyntax as rs
 
 import random
 
-
 def empty_cells(board):
     cells = []
-    for r in range(len(board)):
-        for c in range(len(board)):
-            if board[r][c] == 0:
-                cells.append((r, c))
+    for x in range(len(board)):
+        for y in range(len(board)):
+            if board[x][y] == 0:
+                cells.append((x, y))
     return cells
 
 
-def cells_around(r, c, board):
+def cells_around(r, c, dim):
     cells = []
     if r-1 >= 0: r1 = r-1
     else: r1 = r
-    if r+2 <= len(board): r2 = r+2
+    if r+2 <= dim: r2 = r+2
     else: r2 = r+1
     if c-1 >= 0: c1 = c-1
     else: c1 = c
-    if c+2 <= len(board): c2 = c+2
+    if c+2 <= dim: c2 = c+2
     else: c2 = c+1
     for x in range(r1, r2):
         for y in range(c1, c2):
@@ -28,81 +27,78 @@ def cells_around(r, c, board):
     return cells
 
 
-def create_board(dim, mines):
+def create_board(dim, mines, scale=10):
     board = [[0 for j in range(dim)] for i in range(dim)]
+    mask = [[False for j in range(dim)] for i in range(dim)]
+    grid = [[0 for j in range(dim)] for i in range(dim)]
     mines_indexs = []
-    for b in range(mines):
+    for m in range(mines):
         cells = empty_cells(board)
-        r, c = random.choice(cells)
-        board[r][c] = 'Mine'
-        mines_indexs.append((r, c))
-    for r, c in mines_indexs:
-        for x, y in cells_around(r, c, board):
+        x, y = random.choice(cells)
+        board[x][y], mask[x][y] = 'Mine', True
+        mines_indexs.append((x, y))
+    for i, j in mines_indexs:
+        for x, y in cells_around(i, j, dim):
             if board[x][y] != 'Mine':
                 board[x][y] += 1
-    return board
-
-def draw_board(board, scale=10):
-    grid = []
-    for i in range(len(board)):
-        i_list = []
-        for j in range(len(board)):
-            x = i*scale
-            y = j*scale
-            temp_o1 = rs.AddRectangle((x, y, 0), scale, scale)
-            mid_point = rs.CurveMidPoint(temp_o1)
-            temp_o2 = rs.OffsetCurve(temp_o1, mid_point, 0.05*scale)
-            temp_o3 = rs.AddLine((x, y, 0), (x, y, 1))
-            extrude = rs.ExtrudeCurve(temp_o2, temp_o3)
-            rs.CapPlanarHoles(extrude)
-            rs.DeleteObjects((temp_o1, temp_o2, temp_o3))
-            i_list.append((extrude, (x + scale/2, y + scale/2, 0)))
-        grid.append(i_list)
-    return grid
+    for i in range(dim):
+        for j in range(dim):
+            x = i*scale + scale/2
+            y = j*scale + + scale/2
+            textdot_id = rs.AddTextDot('', (x, y, 0))
+            grid[i][j] = textdot_id
+    return board, mask, grid
 
 
-def turn(board, grid):
-    o = rs.GetObject("", rs.filter.polysurface)
-    for i in range(len(board)):
-        for j in range(len(board)):
-            if o == grid[i][j][0]:
-                if board[i][j] == 'Mine':
-                    rs.DeleteObject(grid[i][j][0])
-                    rs.AddTextDot(str(board[i][j]), grid[i][j][1])
-                    rs.MessageBox("Game over! :(")
-                    return False
-                elif board[i][j] == 0:
-                    board_copy = [row[:] for row in board]
-                    cells_test = list(set(cells_0(i, j, board_copy, [])))
-                    for x, y in cells_test:
-                        rs.DeleteObject(grid[x][y][0])
-                        if board[x][y] !=0 and board[x][y] !='':
-                            rs.AddTextDot(str(board[x][y]), grid[x][y][1])
-                        board[x][y] = ''
-                    if check_board(board):
-                        return True
-                    else:
-                        rs.MessageBox("You win!")
-                        return False
+def check_board(mask):
+    test = 0
+    for i in range(len(mask)):
+        for j in range(len(mask)):
+            if not mask[i][j]:
+                test += 1
+    return test == 0
+
+
+def turn(board, mask, grid):
+    test = True
+    textdot_id = rs.GetObject("", rs.filter.textdot)
+    for x in range(len(grid)):
+        for y in range(len(grid)):
+            if grid[x][y] == textdot_id:
+                i, j = x, y
+    if board[i][j] == 'Mine':
+        rs.TextDotText(textdot_id, board[i][j])
+        mask[i][j] == True
+        rs.MessageBox("Game over! :(", title='Rhino Minesweeper')
+        test = False
+    elif board[i][j] == 0:
+        board_copy = [row[:] for row in board]
+        cells_test = cells_0(i, j, board_copy, [])
+        for x, y in cells_test:
+            if not mask[x][y]:
+                if board[x][y] == 0:
+                    rs.DeleteObject(grid[x][y])
                 else:
-                    rs.DeleteObject(grid[i][j][0])
-                    rs.AddTextDot(str(board[i][j]), grid[i][j][1])
-                    board[i][j] = ''
-                    if check_board(board):
-                        return True
-                    else:
-                        rs.MessageBox("You win!")
-                        return False
+                    rs.TextDotText(grid[x][y], board[x][y])
+            mask[x][y] = True
+    else:
+        rs.TextDotText(textdot_id, board[i][j])
+        mask[i][j] = True
+    if test and check_board(mask):
+        rs.MessageBox("You win!", title='Rhino Minesweeper')
+        return False
+    else: return test
 
 
 def cells_0(i, j, board_copy, cells=[]):
-    for x, y in cells_around(i, j, board_copy):
+    for x, y in cells_around(i, j, len(board_copy)):
         if board_copy[x][y] == 0:
             board_copy[x][y] = '-'
             cells_0(x, y, board_copy, cells)
         else:
-            board_copy[x][y] = '+'
-            cells.append((x,y))
+            board_copy[x][y] = '-'
+            if (x,y) not in cells:
+                cells.append((x,y))
     return cells
 
 
@@ -111,27 +107,15 @@ def set_level():
         "Easy": (8, 10),
         "Medium": (16, 40),
         "Hard": (24, 99)}
-    return levels[rs.ListBox(levels.keys())]
-
-def check_board(board):
-    test = 0
-    for i in range(len(board)):
-        for j in range(len(board)):
-            if board[i][j] != 'Mine' and board[i][j] != '':
-                test += 1
-    if test != 0:
-        return True
-    else:
-        return False
+    return levels[rs.ListBox(levels.keys(), 'Select difficulty:', 'Rhino Minesweeper')]
 
 
 def minesweeper():
     dim, mines = set_level()
-    board = create_board(dim, mines)
-    grid = draw_board(board)
-    player_turn = turn(board, grid)
-    while player_turn:
-        player_turn = turn(board, grid)
+    board, mask, grid = create_board(dim, mines, scale=10)
+    test = turn(board, mask, grid)
+    while test:
+        test = turn(board, mask, grid)
 
 
 if __name__ == "__main__":
