@@ -50,7 +50,7 @@ def create_board(dim, mines, scale=10):
     return board, mask, grid
 
 
-def check_board(mask):
+def check_mask(mask):
     test = 0
     for i in range(len(mask)):
         for j in range(len(mask)):
@@ -59,7 +59,7 @@ def check_board(mask):
     return test == 0
 
 
-def destroy_board((x, y), grid, scale=10):
+def destroy_grid((x, y), grid, scale=10):
     max_dist = scale*4
     for i in range(len(grid)):
         for j in range(len(grid)):
@@ -83,7 +83,7 @@ def turn(board, mask, grid):
             if grid[x][y] == textdot_id:
                 i, j = x, y
     if board[i][j] == 'Mine':
-        destroy_board((i, j), grid)
+        destroy_grid((i, j), grid)
         rs.TextDotText(textdot_id, board[i][j])
         rs.MessageBox("Game over! :(", title='Rhino Minesweeper')
         test = False
@@ -100,7 +100,7 @@ def turn(board, mask, grid):
     else:
         rs.TextDotText(textdot_id, board[i][j])
         mask[i][j] = True
-    if test and check_board(mask):
+    if test and check_mask(mask):
         rs.MessageBox("You win!", title='Rhino Minesweeper')
         return False
     else: return test
