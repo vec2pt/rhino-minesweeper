@@ -59,6 +59,22 @@ def check_board(mask):
     return test == 0
 
 
+def destroy_board((x, y), grid, scale=10):
+    max_dist = scale*4
+    for i in range(len(grid)):
+        for j in range(len(grid)):
+            try:
+                p1 = rs.TextDotPoint(grid[x][y])
+                p2 = rs.TextDotPoint(grid[i][j])
+                dist = rs.Distance(p1, p2)
+                if dist < max_dist:
+                    dist = (max_dist - dist)/(max_dist/1.5)
+                    vect = rs.VectorCreate(p2, p1)
+                    vect = rs.VectorScale(vect, dist)
+                    rs.MoveObject(grid[i][j], vect)
+            except: None
+
+
 def turn(board, mask, grid):
     test = True
     textdot_id = rs.GetObject("", rs.filter.textdot)
@@ -67,8 +83,8 @@ def turn(board, mask, grid):
             if grid[x][y] == textdot_id:
                 i, j = x, y
     if board[i][j] == 'Mine':
+        destroy_board((i, j), grid)
         rs.TextDotText(textdot_id, board[i][j])
-        mask[i][j] == True
         rs.MessageBox("Game over! :(", title='Rhino Minesweeper')
         test = False
     elif board[i][j] == 0:
