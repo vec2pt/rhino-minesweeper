@@ -41,12 +41,14 @@ def create_board(dim, mines, scale=10):
         for x, y in cells_around(i, j, dim):
             if board[x][y] != 'Mine':
                 board[x][y] += 1
+    rs.EnableRedraw(False)
     for i in range(dim):
         for j in range(dim):
             x = i*scale + scale/2
             y = j*scale + + scale/2
             textdot_id = rs.AddTextDot('', (x, y, 0))
             grid[i][j] = textdot_id
+    rs.EnableRedraw(True)
     return board, mask, grid
 
 
@@ -61,6 +63,7 @@ def check_mask(mask):
 
 def destroy_grid((x, y), grid, scale=10):
     max_dist = scale*4
+    rs.EnableRedraw(False)
     for i in range(len(grid)):
         for j in range(len(grid)):
             try:
@@ -73,6 +76,7 @@ def destroy_grid((x, y), grid, scale=10):
                     vect = rs.VectorScale(vect, dist)
                     rs.MoveObject(grid[i][j], vect)
             except: None
+    rs.EnableRedraw(True)
 
 
 def turn(board, mask, grid):
@@ -82,6 +86,7 @@ def turn(board, mask, grid):
         for y in range(len(grid)):
             if grid[x][y] == textdot_id:
                 i, j = x, y
+    rs.EnableRedraw(False)
     if board[i][j] == 'Mine':
         destroy_grid((i, j), grid)
         rs.TextDotText(textdot_id, board[i][j])
@@ -100,6 +105,7 @@ def turn(board, mask, grid):
     else:
         rs.TextDotText(textdot_id, board[i][j])
         mask[i][j] = True
+    rs.EnableRedraw(True)
     if test and check_mask(mask):
         rs.MessageBox("You win!", title='Rhino Minesweeper')
         return False
@@ -131,9 +137,7 @@ def minesweeper():
     board, mask, grid = create_board(dim, mines, scale=10)
     test = turn(board, mask, grid)
     while test:
-        rs.EnableRedraw(True)
         test = turn(board, mask, grid)
-        rs.EnableRedraw(False)
 
 
 if __name__ == "__main__":
