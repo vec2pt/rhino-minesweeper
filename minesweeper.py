@@ -131,7 +131,9 @@ def minesweeper():
     board, mask, grid = create_board(dim, mines, scale=10)
     test = turn(board, mask, grid)
     while test:
+        rs.EnableRedraw(True)
         test = turn(board, mask, grid)
+        rs.EnableRedraw(False)
 
 
 if __name__ == "__main__":
