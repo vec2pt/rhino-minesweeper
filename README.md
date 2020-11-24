@@ -1,6 +1,8 @@
 # rhino-minesweeper
+
 Minesweeper game for [Rhino 3D](https://www.rhino3d.com).
 
+![rhino-minesweeper.gif](rhino-minesweeper.gif)
 
 ## Installation
 
