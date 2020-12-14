@@ -31,4 +31,4 @@ Distributed under the MIT License.
 
 ## Contact
 
-Project Link: [https://github.com/M-VVV/rhino-minesweeper](https://github.com/M-VVV/rhino-minesweeper)
+Project Link: [https://github.com/vlmarch/rhino-minesweeper](https://github.com/vlmarch/rhino-minesweeper)
