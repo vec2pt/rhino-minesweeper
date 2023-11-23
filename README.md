@@ -1,11 +1,11 @@
 # rhino-minesweeper
 
+![rhino-minesweeper.png](img/rhino-minesweeper.png)
+
 Minesweeper game for [Rhino 3D](https://www.rhino3d.com).
 
-![rhino-minesweeper.gif](rhino-minesweeper.gif)
 
 ## Installation
-
 
 1. Drop script files to the directory:
 
@@ -25,10 +25,13 @@ Minesweeper game for [Rhino 3D](https://www.rhino3d.com).
 
     ```
 
+## Screenshots
+
+<p align="center">
+  <img src="img/rhino-minesweeper1.gif" />
+</p>
+
+
 ## License
 
 Distributed under the MIT License.
-
-## Contact
-
-Project Link: [https://github.com/vlmarch/rhino-minesweeper](https://github.com/vlmarch/rhino-minesweeper)
